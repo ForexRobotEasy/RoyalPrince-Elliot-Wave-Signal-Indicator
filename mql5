@@ -1,0 +1,76 @@
+
+// Developer: Forex Robot Easy Team
+// Site: forexroboteasy.com
+// Program Name: RoyalPrince Elliot Wave Signal Indicator
+
+#property indicator_chart_window
+#property indicator_buffers 2
+#property indicator_color1 Lime
+#property indicator_color2 Red
+#property indicator_width1 2
+#property indicator_width2 2
+
+// Input parameters
+extern int wavePeriod = 20; // Period for calculating Elliot Waves
+extern int swingPeriod = 10; // Period for identifying major swings
+extern color waveColor = DodgerBlue; // Color for wave lines
+extern color swingColor = DeepPink; // Color for major swing lines
+
+// Indicator buffers
+double waveBuffer[];
+double swingBuffer[];
+
+// Indicator initialization function
+int OnInit()
+{
+    // Set indicator buffers
+    SetIndexBuffer(0, waveBuffer, INDICATOR_DATA);
+    SetIndexBuffer(1, swingBuffer, INDICATOR_DATA);
+    
+    // Set indicator labels
+    IndicatorSetString(INDICATOR_SHORTNAME, 'RoyalPrince Elliot Wave Indicator');
+    
+    return(INIT_SUCCEEDED);
+}
+
+// Indicator calculation function
+int OnCalculate(const int rates_total, const int prev_calculated, const datetime &time[], const double &open[], const double &high[], const double &low[], const double &close[], const long &tick_volume[], const long &volume[], const int &spread[])
+{
+    // Calculate Elliot Waves
+    for(int i = wavePeriod; i < rates_total; i++)
+    {
+        double waveHigh = high[i];
+        double waveLow = low[i];
+        
+        for(int j = 1; j <= wavePeriod; j++)
+        {
+            if(high[i-j] > waveHigh)
+                waveHigh = high[i-j];
+            
+            if(low[i-j] < waveLow)
+                waveLow = low[i-j];
+        }
+        
+        waveBuffer[i] = waveHigh - waveLow;
+    }
+    
+    // Identify major swings
+    for(int i = swingPeriod; i < rates_total; i++)
+    {
+        double swingHigh = high[i];
+        double swingLow = low[i];
+        
+        for(int j = 1; j <= swingPeriod; j++)
+        {
+            if(high[i-j] > swingHigh)
+                swingHigh = high[i-j];
+            
+            if(low[i-j] < swingLow)
+                swingLow = low[i-j];
+        }
+        
+        swingBuffer[i] = swingHigh - swingLow;
+    }
+    
+    return(rates_total);
+}
